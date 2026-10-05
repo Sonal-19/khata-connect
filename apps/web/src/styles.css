@@ -1,0 +1,236 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * got  = money came back to you (teal)
+ * gave = money went out of your hand (orange)
+ * Teal / orange / rani pink stay distinguishable for the common colour-blind
+ * types; amounts also carry +/− signs and labels, never colour alone.
+ */
+:root {
+  --background: #faf7f8;
+  --foreground: #1f141b;
+  --card: #ffffff;
+  --card-foreground: #1f141b;
+  --popover: #ffffff;
+  --popover-foreground: #1f141b;
+  --primary: #c2185b;
+  --primary-foreground: #ffffff;
+  --secondary: #f6eef2;
+  --secondary-foreground: #1f141b;
+  --muted: #f4edf0;
+  --muted-foreground: #6e5d67;
+  --accent: #fde8f0;
+  --accent-foreground: #9d1650;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #eddfe6;
+  --input: #e2d1da;
+  --ring: #e0457f;
+  --got: #0f766e;
+  --gave: #c2410c;
+  --warning: #b45309;
+  --gold: #c27c0e;
+  --radius: 0.85rem;
+  --chart-grid: #eddfe6;
+  --chart-held: #db2777;
+  --chart-loans: #0d9488;
+  --chart-interest: #f59e0b;
+  /* Net-position hero card: deep rani pink, always white text. */
+  --hero-from: #c2185b;
+  --hero-to: #880e4f;
+  --hero-foreground: #ffffff;
+}
+
+.dark {
+  --background: #010001;
+  --foreground: #f3e9ef;
+  --card: #1a1318;
+  --card-foreground: #f3e9ef;
+  --popover: #1f171d;
+  --popover-foreground: #f3e9ef;
+  --primary: #f2639d;
+  --primary-foreground: #1c0912;
+  --secondary: #251b22;
+  --secondary-foreground: #f3e9ef;
+  --muted: #231a20;
+  --muted-foreground: #ab98a3;
+  --accent: #3a1729;
+  --accent-foreground: #fbcfe1;
+  --destructive: #f87171;
+  --destructive-foreground: #1b0707;
+  --border: #33252e;
+  --input: #3e2e38;
+  --ring: #f2639d;
+  --got: #2dd4bf;
+  --gave: #fb923c;
+  --warning: #fbbf24;
+  --gold: #fbbf24;
+  --chart-grid: #33252e;
+  --chart-held: #f472b6;
+  --chart-loans: #2dd4bf;
+  --chart-interest: #fbbf24;
+  --hero-from: #9d1650;
+  --hero-to: #4a0b2a;
+  --hero-foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-got: var(--got);
+  --color-gave: var(--gave);
+  --color-warning: var(--warning);
+  --color-gold: var(--gold);
+  --color-chart-held: var(--chart-held);
+  --color-chart-loans: var(--chart-loans);
+  --color-chart-interest: var(--chart-interest);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overscroll-behavior-y: none;
+  }
+  input,
+  select,
+  textarea {
+    /* iOS zooms into inputs below 16px */
+    font-size: max(16px, 1em);
+  }
+  @media (min-width: 768px) {
+    input,
+    select,
+    textarea {
+      font-size: inherit;
+    }
+  }
+  button,
+  a {
+    touch-action: manipulation;
+  }
+  /* Grid items default to min-width:auto, so one long `truncate` line can
+     widen a single-column grid past the phone screen. Let them shrink. */
+  .grid > * {
+    min-width: 0;
+  }
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.bg-dot-grid {
+  background-size: 22px 22px;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--foreground) 8%, transparent) 1px,
+    transparent 1px
+  );
+}
+
+.text-gradient-brand {
+  background: linear-gradient(
+    120deg,
+    var(--primary) 0%,
+    color-mix(in oklab, var(--primary) 50%, var(--gold)) 55%,
+    var(--gold) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.animate-dash-flow {
+  stroke-dasharray: 6 6;
+  animation: dash-flow 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-dash-flow {
+    animation: none;
+  }
+}
+
+/* Statements print as a clean black-on-white page. */
+/* biome-ignore-start lint/complexity/noImportantStyles: print must beat utility classes */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print-plain {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: print must beat utility classes */

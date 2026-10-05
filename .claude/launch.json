@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "khata-api",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "apps/api", "dev"],
+      "port": 4400
+    },
+    {
+      "name": "khata-web",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "apps/web", "dev"],
+      "port": 3400
+    }
+  ]
+}
