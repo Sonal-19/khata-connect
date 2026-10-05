@@ -5,7 +5,7 @@
       "name": "khata-api",
       "runtimeExecutable": "bun",
       "runtimeArgs": ["run", "--cwd", "apps/api", "dev"],
-      "port": 4400
+      "port": 4500
     },
     {
       "name": "khata-web",

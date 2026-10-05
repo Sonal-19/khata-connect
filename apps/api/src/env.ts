@@ -5,7 +5,7 @@ export const DATABASE_URL =
 
 export const IS_PROD = process.env.NODE_ENV === "production";
 
-export const PORT = Number(process.env.PORT ?? 4400);
+export const PORT = Number(process.env.PORT ?? 4500);
 
 /** Rolling session length for opaque auth tokens (auths table + in-memory cache). */
 export const SESSION_DAYS = Number(process.env.SESSION_DAYS ?? 30);

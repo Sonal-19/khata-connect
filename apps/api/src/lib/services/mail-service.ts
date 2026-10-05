@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { IS_PROD, SMTP } from "$/env";
+import { SMTP } from "$/env";
 
 class MailService {
   #transport = SMTP.host
@@ -18,12 +18,10 @@ class MailService {
   /** Returns false when the email could not be sent. In dev without SMTP it logs instead. */
   async send(to: string, subject: string, text: string, html?: string) {
     if (!this.#transport) {
-      if (!IS_PROD) {
-        console.info(`[mail:dev] to=${to} subject="${subject}"\n${text}`);
-        return true;
-      }
-      console.error("SMTP is not configured; cannot send email");
-      return false;
+      // No SMTP yet (dev or prod): the mail is written to the server log so
+      // OTPs can be read from there. Remove once SMTP is configured in prod.
+      console.info(`[mail:log] to=${to} subject="${subject}"\n${text}`);
+      return true;
     }
     try {
       await this.#transport.sendMail({

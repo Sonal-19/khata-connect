@@ -24,7 +24,7 @@ cp apps/api/.env.example apps/api/.env
 bun install
 bun run --cwd apps/api db:push
 bun run --cwd apps/api db:seed     # optional demo data
-bun run dev                        # api :4400 + web :3400
+bun run dev                        # api :4500 + web :3400
 ```
 
 Open http://localhost:3400.

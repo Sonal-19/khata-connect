@@ -3,7 +3,7 @@
 Bun workspaces monorepo: `apps/api` (Elysia + Drizzle + Postgres) and `apps/web` (Vite + React 19 + TanStack Router/Query).
 Architecture mirrors `~/Developer/Projects/finance-tracker`, but this is a separate product, repo and database — never share code by importing across the two projects.
 
-- Ports: API **4400**, web **3400** (Vite proxies `/api`). DB: `khata_connect` on local Postgres.
+- Ports: API **4500**, web **3400** (Vite proxies `/api`). DB: `khata_connect` on local Postgres.
 - Commands: `bun run dev`, `bun run typecheck`, `bun run lint`, `bun run --cwd apps/api db:push | db:seed`, `bun apps/api/scripts/smoke.ts` (from `apps/api`).
 - Brand name lives in `apps/web/src/lib/brand.ts`, `apps/api/src/env.ts` (`APP_NAME`), `index.html`, `vite.config.ts`.
 - Money is stored in **paise** (bigint) and sent over the API in rupees. INR only, `en-IN`.

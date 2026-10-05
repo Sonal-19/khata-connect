@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const API = "http://localhost:4400";
+const API = "http://localhost:4500";
 
 export default defineConfig({
   plugins: [
