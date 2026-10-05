@@ -1,6 +1,5 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import {
-  ArrowDownLeft,
   ArrowRight,
   ArrowUpRight,
   BellRing,
@@ -8,7 +7,6 @@ import {
   Check,
   FileSpreadsheet,
   FileText,
-  HandCoins,
   Landmark,
   Lock,
   Moon,
@@ -21,19 +19,15 @@ import {
 } from "lucide-react";
 import {
   AnimatePresence,
-  animate,
   MotionConfig,
   motion,
-  useInView,
-  useMotionValue,
   useScroll,
   useSpring,
-  useTransform,
 } from "motion/react";
-import type * as React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Logo } from "@/components/common/logo";
 import { AuthCard, type AuthMode } from "@/components/landing/auth-card";
+import { HeroInteractiveVisual } from "@/components/landing/hero-interactive-visual";
 import { InterestCalculator } from "@/components/ledger/interest-calculator";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -147,219 +141,6 @@ const NAV = [
   ["how", "How it works"],
   ["faq", "FAQ"],
 ] as const;
-
-const FLOW_ROWS = [
-  {
-    icon: ArrowUpRight,
-    t: "Cash given to Ravi",
-    d: "10 Mar",
-    a: "+₹50,000",
-    c: "text-got",
-  },
-  {
-    icon: HandCoins,
-    t: "Loan to Amit · from Ravi's cash",
-    d: "15 Feb",
-    a: "₹2,00,000",
-    c: "text-foreground",
-  },
-  {
-    icon: ArrowDownLeft,
-    t: "Interest received",
-    d: "15 Sep",
-    a: "+₹2,000",
-    c: "text-got",
-  },
-];
-
-const inr = new Intl.NumberFormat("en-IN");
-
-/** "₹4,32,500" counts up from ₹0 the first time it scrolls into view. */
-function CountUp({ value }: { value: string }) {
-  const target = Number(value.replace(/\D/g, ""));
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (!inView) return;
-    const c = animate(0, target, {
-      duration: 1.4,
-      ease: "easeOut",
-      onUpdate: (v) => setN(Math.round(v)),
-    });
-    return () => c.stop();
-  }, [inView, target]);
-  return <span ref={ref}>₹{inr.format(n)}</span>;
-}
-
-/** Card that tilts toward the cursor (no-op on touch). */
-function Tilt({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [6, -6]), {
-    stiffness: 150,
-    damping: 18,
-  });
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-6, 6]), {
-    stiffness: 150,
-    damping: 18,
-  });
-  return (
-    <motion.div
-      style={{ rotateX, rotateY, transformPerspective: 1000 }}
-      onPointerMove={(e) => {
-        if (e.pointerType !== "mouse") return;
-        const r = e.currentTarget.getBoundingClientRect();
-        x.set((e.clientX - r.left) / r.width - 0.5);
-        y.set((e.clientY - r.top) / r.height - 0.5);
-      }}
-      onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/** Animated "how your money flows" illustration (sample names). */
-function FlowCard() {
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(
-      () => setActive((i) => (i + 1) % FLOW_ROWS.length),
-      2200,
-    );
-    return () => clearInterval(id);
-  }, [paused]);
-
-  const node =
-    "relative z-10 flex flex-col items-center gap-1 rounded-2xl border bg-card px-3 py-2.5 text-center shadow-sm sm:px-4";
-  return (
-    <Tilt className="relative overflow-hidden rounded-3xl border bg-card p-4 shadow-2xl shadow-primary/10 sm:p-6">
-      <div className="bg-dot-grid pointer-events-none absolute inset-0 opacity-60" />
-      <div className="relative flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          How your money flows
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-got/12 px-2 py-0.5 text-[11px] font-semibold text-got">
-          <span className="relative flex size-1.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-got opacity-75" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-got" />
-          </span>
-          Live balance
-        </span>
-      </div>
-
-      <div className="relative mt-5 grid grid-cols-3 items-center gap-2">
-        <div className="pointer-events-none absolute inset-x-[16%] top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-primary/15">
-          {[0, 1].map((i) => (
-            <motion.span
-              key={i}
-              className="absolute top-1/2 grid size-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-gold text-[10px] font-bold text-white shadow-md shadow-gold/40"
-              initial={{ left: "0%", opacity: 0 }}
-              animate={{ left: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
-              transition={{
-                duration: 3,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-                delay: i * 1.5,
-              }}
-            >
-              ₹
-            </motion.span>
-          ))}
-        </div>
-        <motion.div whileHover={{ y: -3 }} className={node}>
-          <span className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            You
-          </span>
-          <span className="text-[11px] text-muted-foreground">gave cash</span>
-        </motion.div>
-        <motion.div whileHover={{ y: -3 }} className={node}>
-          <span className="grid size-9 place-items-center rounded-full bg-got/15 text-sm font-bold text-got">
-            RS
-          </span>
-          <span className="text-xs font-semibold">Ravi</span>
-          <span className="tabular text-[11px] text-got">holds ₹4.3L</span>
-        </motion.div>
-        <motion.div whileHover={{ y: -3 }} className={node}>
-          <span className="grid size-9 place-items-center rounded-full bg-gold/15 text-sm font-bold text-gold">
-            AV
-          </span>
-          <span className="text-xs font-semibold">Amit</span>
-          <span className="tabular text-[11px] text-gold">1% / month</span>
-        </motion.div>
-      </div>
-
-      <div
-        className="relative mt-5 space-y-2"
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
-      >
-        {FLOW_ROWS.map((r, i) => (
-          <motion.div
-            key={r.t}
-            onPointerEnter={() => setActive(i)}
-            animate={{ scale: active === i ? 1.02 : 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 22 }}
-            className={cn(
-              "relative flex items-center gap-3 rounded-xl border bg-background/70 px-3 py-2 transition-colors",
-              active === i && "border-primary/40 bg-card",
-            )}
-          >
-            {active === i && (
-              <motion.span
-                layoutId="flow-active"
-                className="absolute inset-y-2 left-0 w-1 rounded-full bg-primary"
-              />
-            )}
-            <r.icon
-              className={cn(
-                "size-4 shrink-0 text-muted-foreground transition-colors",
-                active === i && "text-primary",
-              )}
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{r.t}</p>
-              <p className="text-[11px] text-muted-foreground">{r.d}</p>
-            </div>
-            <span className={cn("tabular text-sm font-semibold", r.c)}>
-              {r.a}
-            </span>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="relative mt-4 grid grid-cols-3 gap-2 rounded-2xl bg-accent/70 p-3 text-center">
-        {[
-          ["With Ravi", "₹4,32,500"],
-          ["Lent out", "₹2,00,000"],
-          ["Interest due", "₹73,000"],
-        ].map(([k, v]) => (
-          <div key={k}>
-            <p className="text-[10px] text-muted-foreground sm:text-[11px]">
-              {k}
-            </p>
-            <p className="tabular text-sm font-bold sm:text-base">
-              <CountUp value={v!} />
-            </p>
-          </div>
-        ))}
-      </div>
-    </Tilt>
-  );
-}
 
 function SectionTitle({
   kicker,
@@ -620,41 +401,53 @@ function Landing() {
           />
         </header>
 
-        {/* ---------------- Hero + auth ---------------- */}
-        <section className="relative isolate">
-          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-            <div className="animate-orb absolute -top-32 -left-24 size-[28rem] rounded-full bg-primary/20 blur-3xl" />
-            <div className="animate-orb absolute top-10 -right-24 size-[22rem] rounded-full bg-gold/15 blur-3xl [animation-delay:-6s]" />
-            <div className="bg-dot-grid absolute inset-0 [mask-image:radial-gradient(70%_60%_at_50%_0%,black,transparent)]" />
-          </div>
-          <div className="mx-auto grid max-w-7xl items-start gap-8 px-4 pt-2 pb-12 sm:px-6 sm:pt-14 lg:grid-cols-[1.05fr_minmax(0,460px)] lg:gap-14 lg:px-8 lg:pt-20 lg:pb-20">
-            <div className="min-w-0">
-              <motion.span
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
-                className="hidden items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary md:inline-flex"
-              >
+        {/* ---------------- Section 1: Product Showcase & Story (Normal Background) ---------------- */}
+        <section className="relative border-t bg-card/40 pt-2 pb-16 sm:pt-6 sm:pb-20">
+          <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
+            {/* Side A: 3D Product Showcase Illustration (hero-illustration.jpg) */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.6 }}
+              whileHover={{ y: -4 }}
+              className="hidden md:block group relative order-last lg:order-first overflow-hidden rounded-3xl border border-border/80 bg-card  shadow-2xl shadow-primary/10 transition-all duration-300 hover:border-primary/40 dark:border-border/60 dark:bg-card/90"
+            >
+              <div className="relative aspect-16/10 w-full overflow-hidden rounded-2xl bg-muted/30">
+                <img
+                  src="/hero-illustration.jpg"
+                  alt="Khata Connect 3D Digital Ledger Illustration"
+                  loading="eager"
+                  className="size-full object-cover transition-opacity duration-500 dark:opacity-0"
+                />
+                <img
+                  src="/hero-illustration-dark.jpg"
+                  alt="Khata Connect 3D Digital Ledger Dark Illustration"
+                  loading="eager"
+                  className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500 dark:opacity-100"
+                />
+              </div>
+            </motion.div>
+
+            {/* Side B: Title & Content Details of Hero Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="min-w-0"
+            >
+              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 <Users className="size-3.5" /> Smart khata for lena-dena
-              </motion.span>
-              <h1 className="mt-4 text-[2rem] leading-[1.1] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+              </span>
+
+              <h2 className="mt-4 text-[2.1rem] leading-[1.1] font-extrabold tracking-tight text-4xl md:text-5xl 2xl:text-6xl">
                 {HEADLINE.map((w, i) => (
-                  <motion.span
-                    key={i}
-                    initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ delay: 0.05 * i, duration: 0.5 }}
-                    className="inline-block"
-                  >
+                  <span key={i} className="inline-block">
                     {w}&nbsp;
-                  </motion.span>
+                  </span>
                 ))}
-                <motion.span
-                  initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ delay: 0.05 * HEADLINE.length, duration: 0.5 }}
-                  className="relative inline-block"
-                >
+                <span className="relative inline-block">
                   <span className="text-gradient-brand">remembered.</span>
                   <svg
                     viewBox="0 0 200 12"
@@ -671,70 +464,88 @@ function Landing() {
                       initial={{ pathLength: 0 }}
                       animate={{ pathLength: 1 }}
                       transition={{
-                        delay: 0.05 * HEADLINE.length + 0.35,
+                        delay: 0.4,
                         duration: 0.7,
                         ease: "easeInOut",
                       }}
                     />
                   </svg>
-                </motion.span>
-              </h1>
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45, duration: 0.5 }}
-                className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg"
-              >
+                </span>
+              </h2>
+
+              <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.6 }}
+              whileHover={{ y: -4 }}
+              className="lg:hidden group relative order-last lg:order-first overflow-hidden rounded-3xl border border-border/80 bg-card my-6 shadow-2xl shadow-primary/10 transition-all duration-300 hover:border-primary/40 dark:border-border/60 dark:bg-card/90"
+            >
+              <div className="relative aspect-16/10 w-full overflow-hidden rounded-2xl bg-muted/30">
+                <img
+                  src="/hero-illustration.jpg"
+                  alt="Khata Connect 3D Digital Ledger Illustration"
+                  loading="eager"
+                  className="size-full object-cover transition-opacity duration-500 dark:opacity-0"
+                />
+                <img
+                  src="/hero-illustration-dark.jpg"
+                  alt="Khata Connect 3D Digital Ledger Dark Illustration"
+                  loading="eager"
+                  className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500 dark:opacity-100"
+                />
+              </div>
+            </motion.div>
+
+              <p className="mt-5 max-w-xl text-base font-normal leading-relaxed text-muted-foreground sm:text-lg">
                 {BRAND.name} keeps track of money you give, get back, lend at
                 interest or keep with family — with interest worked out to the
                 rupee, exactly like your Excel sheet, minus the formulas.
-              </motion.p>
+              </p>
+
               <ul className="mt-6 grid gap-2.5 text-sm sm:grid-cols-2">
-                {HERO_POINTS.map((t, i) => (
-                  <motion.li
+                {HERO_POINTS.map((t) => (
+                  <li
                     key={t}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + i * 0.08 }}
-                    className="flex items-start gap-2"
+                    className="flex items-start gap-2.5 rounded-xl border border-border/80 bg-card/85 px-3.5 py-2.5 shadow-xs backdrop-blur-md transition-colors hover:border-primary/40 dark:bg-card/80"
                   >
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{
-                        delay: 0.7 + i * 0.08,
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 15,
-                      }}
-                      className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-got/15 text-got"
-                    >
+                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-got/15 text-got">
                       <Check className="size-3.5" />
-                    </motion.span>
-                    {t}
-                  </motion.li>
+                    </span>
+                    <span className="font-semibold text-foreground/95">
+                      {t}
+                    </span>
+                  </li>
                 ))}
               </ul>
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-                className="mt-8  max-w-xl"
-              >
-                <FlowCard />
-              </motion.div>
-            </div>
+            </motion.div>
+          </div>
+        </section>
 
+        {/* ---------------- Section 2: AuthCard & 3D Interactive Background (Top First Screen) ---------------- */}
+        <section className="relative isolate flex  flex-col justify-center overflow-hidden py-12 sm:py-16 lg:py-20">
+          {/* Interactive 3D Background Image - Only in this top section */}
+          <HeroInteractiveVisual />
+          <div className="bg-dot-grid pointer-events-none absolute inset-0 -z-20 opacity-30 [mask-image:radial-gradient(75%_60%_at_50%_0%,black,transparent)] dark:opacity-15" />
+
+          {/* Left AuthCard, Right Empty for Background Artwork */}
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,460px)_1fr] lg:gap-14 lg:px-8">
             <motion.div
               ref={authRef}
               id="auth"
               initial={{ opacity: 0, y: 24, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="min-w-0 scroll-mt-20 lg:sticky lg:top-24"
+              className="min-w-0 md:min-w-xl scroll-mt-24"
             >
               <AuthCard mode={mode} onModeChange={setMode} />
             </motion.div>
+
+            {/* Right side is intentionally empty on desktop so the 3D background image is clearly visible */}
+            <div
+              className="hidden lg:flex min-h-[460px] flex-col justify-center items-end pointer-events-none"
+              aria-hidden="true"
+            />
           </div>
         </section>
 
@@ -762,7 +573,7 @@ function Landing() {
           id="calculator"
           className="scroll-mt-16 border-t py-14 sm:py-20"
         >
-          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <SectionTitle
               kicker="Try it now"
               title="How much byaaj is due?"
@@ -802,7 +613,7 @@ function Landing() {
 
         {/* ---------------- FAQ ---------------- */}
         <section id="faq" className="scroll-mt-16 border-t py-14 sm:py-20">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
             <SectionTitle kicker="Questions" title="Good to know" />
             <Faq />
           </div>
